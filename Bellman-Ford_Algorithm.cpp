@@ -1,6 +1,7 @@
 #include<iostream>
 #include<vector>
 #include<limits>
+#include<stdexcept>
 
 const int int_max = std::numeric_limits<int>::max();
 
@@ -11,7 +12,7 @@ struct Edge
 	int weight_;
 };
 
-void bellmanFord(std::vector<Edge>& graph, int vertices, int source) {
+std::vector<int> bellmanFord(std::vector<Edge>& graph, int vertices, int source) {
 	std::vector<int> distance(vertices, int_max);
 	distance[source] = 0;
 
@@ -25,15 +26,11 @@ void bellmanFord(std::vector<Edge>& graph, int vertices, int source) {
 
 	for (const Edge& e : graph) {
 		if (distance[e.source_] != int_max && distance[e.source_] + e.weight_ < distance[e.destination_]) {
-			std::cout << "Graph contins negative weight cycle" << std::endl;
-			return;
+			throw std::runtime_error("Graph contins negative weight cycle");
 		}
 	}
 
-	std::cout << "Vertex  Distance from source\n";
-	for (int i = 0; i < vertices; ++i) {
-		std::cout << i << "\t" << distance[i] << "\n";
-	}
+	return distance;
 }
 
 int main() {
@@ -44,8 +41,15 @@ int main() {
 				{ 1, 3, 4 }, { 1, 4, 6 }, { 3, 4, -1 },
 				{ 3, 5, 2 }, { 4, 5, -3 } };
 
+	std::vector<int> output;
 	
-	bellmanFord(graph, vertices, 0);
+	output = bellmanFord(graph, vertices, 0);
+	std::cout << "Vertex  Distance from source\n";
+	for (int i = 0; i < vertices; ++i) {
+		std::cout << i << "\t" << output[i] << "\n";
+	}
+
+	std::cout << "Shortest path to vertice 4: " << output[4] << std::endl;
 
 	return 0;
 }
